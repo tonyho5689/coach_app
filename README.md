@@ -38,26 +38,23 @@ npx serve dist      # preview locally
   SPA rewrites) and deploys on every push.
 - **CLI:** `npm i -g vercel && vercel --prod`
 
-To enable the live LLM on the deploy, set `EXPO_PUBLIC_ANTHROPIC_API_KEY` in the
-Vercel project's Environment Variables. (Note: `EXPO_PUBLIC_*` vars are bundled
-into client JS, so use a restricted key for a public demo.)
+No environment variables or API keys are required — see below.
 
-## Optional: real LLM (Anthropic Claude)
+## AI features (MVP: built-in responses)
 
-The app works fully without an API key (realistic mocked meal analysis + a
-data-aware mocked Advisor). To enable **real** AI vision + chat:
+For this MVP stage, the "AI" features run **fully on-device with hard-coded
+responses** — no external LLM/API calls, no keys, no network dependency — so the
+demo works anywhere (including the Vercel web build) out of the box.
 
-```bash
-cp .env.example .env
-# then set EXPO_PUBLIC_ANTHROPIC_API_KEY=sk-ant-...
-npm start
-```
+- **Meals**: tapping analyze returns a realistic built-in calorie/macro estimate
+  (with light jitter so repeated captures feel live).
+- **Advisor**: replies are computed from your **real** logged data, so they still
+  reference your actual numbers (calories left, protein gap, workouts this week,
+  weight trend) — see the visible "What Coach can see right now" panel.
 
-- **Meals**: a Claude vision call estimates calories/macros from the photo.
-- **Advisor**: each question is sent with your profile + recent meals + workouts
-  as grounding so answers reference your actual numbers.
-
-Default model is `claude-sonnet-4-6` (override with `EXPO_PUBLIC_ANTHROPIC_MODEL`).
+All of this lives in `src/llm.ts`, behind the same `analyzeMealImage()` /
+`askAdvisor()` functions — so a real LLM can be dropped back in later without
+touching the screens.
 
 ## Features
 
@@ -74,8 +71,8 @@ Default model is `claude-sonnet-4-6` (override with `EXPO_PUBLIC_ANTHROPIC_MODEL
 - **Expo Router** for the 5-tab navigation + onboarding gate.
 - **AsyncStorage** persistence with first-run seeding (`src/seed.ts`).
 - **Targets** computed via Mifflin–St Jeor BMR × activity factor, adjusted by goal (`src/nutrition.ts`).
-- **LLM layer** (`src/llm.ts`) cleanly swaps between a live Anthropic call and
-  deterministic, data-aware mocks.
+- **AI layer** (`src/llm.ts`) returns deterministic, data-aware built-in
+  responses for the MVP (no external API), behind swappable function boundaries.
 - Camera via `expo-camera` (workout) and `expo-image-picker` (meals);
   charts/overlays via `react-native-svg`.
 

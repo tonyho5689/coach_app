@@ -7,43 +7,16 @@ import {
   Workout,
 } from './types';
 
-const API_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY?.trim();
-const MODEL = process.env.EXPO_PUBLIC_ANTHROPIC_MODEL?.trim() || 'claude-sonnet-4-6';
-const ENDPOINT = 'https://api.anthropic.com/v1/messages';
-
-export function hasApiKey(): boolean {
-  return !!API_KEY;
-}
-
-async function callAnthropic(
-  body: Record<string, unknown>,
-): Promise<string> {
-  const res = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': API_KEY as string,
-      'anthropic-version': '2023-06-01',
-      // Allows direct calls from non-server (RN/browser) environments.
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const detail = await res.text();
-    throw new Error(`Anthropic API ${res.status}: ${detail}`);
-  }
-  const json = await res.json();
-  const parts = (json.content ?? []) as Array<{ type: string; text?: string }>;
-  return parts
-    .filter((p) => p.type === 'text')
-    .map((p) => p.text ?? '')
-    .join('')
-    .trim();
-}
+// ---------------------------------------------------------------------------
+// MVP NOTE: All "AI" features below return built-in, hard-coded responses.
+// There is no external LLM/API call — the meal analyzer and the Advisor run
+// fully on-device so the demo works anywhere (incl. the Vercel web build) with
+// zero configuration or keys. The Advisor responses are still computed from the
+// user's real logged data so they reference actual numbers.
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// Meal vision analysis
+// Meal "vision" analysis (hard-coded estimates)
 // ---------------------------------------------------------------------------
 
 export interface MealAnalysis {
@@ -52,10 +25,10 @@ export interface MealAnalysis {
   protein: number;
   carbs: number;
   fat: number;
-  source: 'ai' | 'mock';
+  source: 'mock';
 }
 
-const MOCK_MEALS: Omit<MealAnalysis, 'source'>[] = [
+const SAMPLE_MEALS: Omit<MealAnalysis, 'source'>[] = [
   { name: 'Grilled chicken & roasted veg', calories: 480, protein: 44, carbs: 30, fat: 18 },
   { name: 'Salmon poke bowl', calories: 560, protein: 36, carbs: 58, fat: 16 },
   { name: 'Veggie omelette & toast', calories: 420, protein: 26, carbs: 30, fat: 22 },
@@ -64,8 +37,8 @@ const MOCK_MEALS: Omit<MealAnalysis, 'source'>[] = [
   { name: 'Steak, potatoes & greens', calories: 720, protein: 48, carbs: 52, fat: 32 },
 ];
 
-function mockMeal(): MealAnalysis {
-  const pick = MOCK_MEALS[Math.floor(Math.random() * MOCK_MEALS.length)];
+function sampleMeal(): MealAnalysis {
+  const pick = SAMPLE_MEALS[Math.floor(Math.random() * SAMPLE_MEALS.length)];
   // Add a little jitter so repeated captures feel real.
   const j = (n: number, p = 0.08) =>
     Math.round(n * (1 + (Math.random() * 2 - 1) * p));
@@ -79,70 +52,19 @@ function mockMeal(): MealAnalysis {
   };
 }
 
+// Signature kept compatible with the screens; the image is intentionally unused
+// in this MVP build.
 export async function analyzeMealImage(
-  base64Jpeg: string | undefined,
-  profile: UserProfile | null,
+  _base64Jpeg: string | undefined,
+  _profile: UserProfile | null,
 ): Promise<MealAnalysis> {
-  if (!API_KEY || !base64Jpeg) {
-    // Simulate network latency for a realistic demo feel.
-    await new Promise((r) => setTimeout(r, 900));
-    return mockMeal();
-  }
-  try {
-    const restrictions =
-      profile?.dietaryRestrictions?.length
-        ? `The user notes these dietary restrictions: ${profile.dietaryRestrictions.join(', ')}.`
-        : '';
-    const text = await callAnthropic({
-      model: MODEL,
-      max_tokens: 400,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: 'image/jpeg',
-                data: base64Jpeg,
-              },
-            },
-            {
-              type: 'text',
-              text:
-                `Estimate the nutrition of this meal. ${restrictions} ` +
-                'Respond ONLY with a compact JSON object, no markdown, with keys: ' +
-                'name (short string), calories (int), protein (int grams), carbs (int grams), fat (int grams).',
-            },
-          ],
-        },
-      ],
-    });
-    const parsed = JSON.parse(extractJson(text));
-    return {
-      name: String(parsed.name ?? 'Analyzed meal'),
-      calories: Math.round(Number(parsed.calories) || 0),
-      protein: Math.round(Number(parsed.protein) || 0),
-      carbs: Math.round(Number(parsed.carbs) || 0),
-      fat: Math.round(Number(parsed.fat) || 0),
-      source: 'ai',
-    };
-  } catch (e) {
-    console.warn('Meal analysis failed, falling back to mock:', e);
-    return mockMeal();
-  }
-}
-
-function extractJson(text: string): string {
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start >= 0 && end > start) return text.slice(start, end + 1);
-  return text;
+  // Brief simulated latency so the "analyzing" state is visible.
+  await new Promise((r) => setTimeout(r, 900));
+  return sampleMeal();
 }
 
 // ---------------------------------------------------------------------------
-// Advisor chat — grounded in the user's real data
+// Advisor chat — hard-coded replies grounded in the user's real data
 // ---------------------------------------------------------------------------
 
 export interface AdvisorContext {
@@ -154,8 +76,8 @@ export interface AdvisorContext {
   todayTotals: { calories: number; protein: number; carbs: number; fat: number };
 }
 
-// Human-readable grounding facts. Shown in the UI AND fed to the model so the
-// answer references the user's actual numbers.
+// Human-readable grounding facts. Shown in the UI so the data access is visible,
+// and used to build the hard-coded reply below.
 export function buildGroundingFacts(ctx: AdvisorContext): string[] {
   const { profile, todayTotals, recentWorkouts, weights } = ctx;
   const t = profile.targets;
@@ -195,45 +117,8 @@ export function buildGroundingFacts(ctx: AdvisorContext): string[] {
   return facts;
 }
 
-function buildSystemPrompt(ctx: AdvisorContext): string {
-  const { profile } = ctx;
-  const facts = buildGroundingFacts(ctx);
-  const recentMealLines = ctx.recentMeals
-    .slice(0, 8)
-    .map(
-      (m) =>
-        `- ${new Date(m.timestamp).toLocaleDateString()} ${m.name}: ${m.calories}kcal P${m.protein}/C${m.carbs}/F${m.fat}`,
-    )
-    .join('\n');
-  const workoutLines = ctx.recentWorkouts
-    .slice(0, 6)
-    .map(
-      (w) =>
-        `- ${new Date(w.timestamp).toLocaleDateString()} ${w.exercise} x${w.reps} (form ${w.formScore})`,
-    )
-    .join('\n');
-
-  return [
-    'You are Coach, a friendly, expert AI health & fitness coach inside a tracking app.',
-    'You have access to the user\'s real logged data. ALWAYS ground your advice in their actual numbers and reference them specifically.',
-    'Be concise (2-4 short sentences), encouraging, and practical. Avoid medical disclaimers unless truly necessary.',
-    '',
-    `User: ${profile.name}, ${profile.age}y ${profile.sex}, ${profile.heightCm}cm, ${profile.weightKg}kg.`,
-    `Daily targets: ${profile.targets.calories} kcal, ${profile.targets.protein}g protein, ${profile.targets.carbs}g carbs, ${profile.targets.fat}g fat.`,
-    '',
-    'KEY FACTS (today + recent):',
-    ...facts.map((f) => `- ${f}`),
-    '',
-    'Recent meals:',
-    recentMealLines || '- none logged',
-    '',
-    'Recent workouts:',
-    workoutLines || '- none logged',
-  ].join('\n');
-}
-
-// Deterministic, data-aware mock so the demo works with no API key.
-function mockAdvisorReply(question: string, ctx: AdvisorContext): string {
+// Deterministic, data-aware hard-coded reply.
+function buildAdvisorReply(question: string, ctx: AdvisorContext): string {
   const q = question.toLowerCase();
   const t = ctx.profile.targets;
   const protLeft = t.protein - ctx.todayTotals.protein;
@@ -283,26 +168,9 @@ function mockAdvisorReply(question: string, ctx: AdvisorContext): string {
 export async function askAdvisor(
   question: string,
   ctx: AdvisorContext,
-  history: ChatMessage[],
+  _history: ChatMessage[],
 ): Promise<string> {
-  if (!API_KEY) {
-    await new Promise((r) => setTimeout(r, 700));
-    return mockAdvisorReply(question, ctx);
-  }
-  try {
-    const priorTurns = history
-      .filter((m) => m.role === 'user' || m.role === 'assistant')
-      .slice(-6)
-      .map((m) => ({ role: m.role, content: m.text }));
-    const text = await callAnthropic({
-      model: MODEL,
-      max_tokens: 400,
-      system: buildSystemPrompt(ctx),
-      messages: [...priorTurns, { role: 'user', content: question }],
-    });
-    return text || mockAdvisorReply(question, ctx);
-  } catch (e) {
-    console.warn('Advisor call failed, falling back to mock:', e);
-    return mockAdvisorReply(question, ctx);
-  }
+  // Brief simulated latency so the "thinking" state is visible.
+  await new Promise((r) => setTimeout(r, 700));
+  return buildAdvisorReply(question, ctx);
 }

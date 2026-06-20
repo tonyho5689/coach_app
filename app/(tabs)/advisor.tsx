@@ -17,7 +17,6 @@ import {
   AdvisorContext,
   askAdvisor,
   buildGroundingFacts,
-  hasApiKey,
 } from '../../src/llm';
 import { mealsForDay, sumMeals } from '../../src/nutrition';
 import { colors, font, radius, spacing } from '../../src/theme';
@@ -100,9 +99,7 @@ export default function Advisor() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Coach Advisor</Text>
-            <Text style={styles.headerSub}>
-              {hasApiKey() ? 'Live AI · knows your data' : 'Demo AI · knows your data'}
-            </Text>
+            <Text style={styles.headerSub}>Demo · knows your data</Text>
           </View>
           <Pressable onPress={() => setShowGrounding((s) => !s)} style={styles.groundingToggle}>
             <Ionicons

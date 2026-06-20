@@ -20,7 +20,7 @@ import {
   SectionHeader,
 } from '../../src/components/ui';
 import { useApp } from '../../src/context/AppContext';
-import { analyzeMealImage, hasApiKey, MealAnalysis } from '../../src/llm';
+import { analyzeMealImage, MealAnalysis } from '../../src/llm';
 import { mealsForDay, noteForMeal, sumMeals } from '../../src/nutrition';
 import { colors, font, radius, spacing } from '../../src/theme';
 import { Meal } from '../../src/types';
@@ -102,10 +102,7 @@ export default function Meals() {
           <View style={styles.captureHeader}>
             <Ionicons name="camera" size={20} color={colors.primary} />
             <Text style={styles.captureTitle}>Log a meal</Text>
-            <Pill
-              label={hasApiKey() ? 'AI vision' : 'Demo mode'}
-              color={hasApiKey() ? colors.primary : colors.textMuted}
-            />
+            <Pill label="Demo estimate" color={colors.textMuted} />
           </View>
           <Text style={styles.captureHint}>
             Snap or pick a photo and Coach estimates the nutrition.
