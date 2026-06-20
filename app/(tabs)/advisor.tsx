@@ -148,6 +148,7 @@ export default function Advisor() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={styles.suggestionsBar}
           contentContainerStyle={styles.suggestions}
           keyboardShouldPersistTaps="handled"
         >
@@ -158,7 +159,9 @@ export default function Advisor() {
               onPress={() => send(s)}
               disabled={thinking}
             >
-              <Text style={styles.suggestionText}>{s}</Text>
+              <Text style={styles.suggestionText} numberOfLines={1}>
+                {s}
+              </Text>
             </Pressable>
           ))}
         </ScrollView>
@@ -279,11 +282,17 @@ const styles = StyleSheet.create({
   bubbleGroundingText: { color: colors.textDim, fontSize: font.tiny, flex: 1 },
   thinkingBubble: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   thinkingText: { color: colors.textMuted, fontSize: font.small },
+  // Keep the quick-prompt row a stable height; in the flex column it must not
+  // shrink (which squished the chips once the message list filled the screen).
+  suggestionsBar: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   suggestions: {
     gap: spacing.sm,
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
+    paddingVertical: spacing.sm,
   },
   suggestion: {
     backgroundColor: colors.card,
