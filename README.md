@@ -22,6 +22,26 @@ press `i` / `a` for a simulator/emulator.
 > First launch seeds the demo data and drops you on the Dashboard. To replay the
 > onboarding flow, go to **Profile → Reset all data**.
 
+## Web build & Vercel deploy
+
+The app also runs as a responsive web app (React Native Web). Build locally:
+
+```bash
+npm run build:web   # outputs a static site to ./dist
+npx serve dist      # preview locally
+```
+
+**Deploy to Vercel** — the repo is zero-config ready (`vercel.json`):
+
+- **Dashboard (recommended):** Import the GitHub repo at vercel.com. Vercel
+  auto-detects `vercel.json` (build `expo export --platform web`, output `dist`,
+  SPA rewrites) and deploys on every push.
+- **CLI:** `npm i -g vercel && vercel --prod`
+
+To enable the live LLM on the deploy, set `EXPO_PUBLIC_ANTHROPIC_API_KEY` in the
+Vercel project's Environment Variables. (Note: `EXPO_PUBLIC_*` vars are bundled
+into client JS, so use a restricted key for a public demo.)
+
 ## Optional: real LLM (Anthropic Claude)
 
 The app works fully without an API key (realistic mocked meal analysis + a
