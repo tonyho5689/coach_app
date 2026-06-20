@@ -1,23 +1,24 @@
-// Central design tokens for a clean, modern fitness-app look.
+// Central design tokens — warm, light fitness-app theme.
 export const colors = {
-  bg: '#0F172A', // slate-900
-  bgElevated: '#1E293B', // slate-800
-  card: '#1E293B',
-  cardAlt: '#273449',
-  border: '#334155', // slate-700
-  text: '#F8FAFC', // slate-50
-  textMuted: '#94A3B8', // slate-400
-  textDim: '#64748B', // slate-500
-  primary: '#10B981', // emerald-500
-  primaryDark: '#059669',
-  primarySoft: 'rgba(16,185,129,0.15)',
-  accent: '#38BDF8', // sky-400
-  protein: '#38BDF8', // sky
-  carbs: '#FBBF24', // amber
-  fat: '#F472B6', // pink
-  calories: '#10B981',
-  danger: '#F87171',
-  warn: '#FBBF24',
+  bg: '#F4EFE6', // warm cream app background
+  bgElevated: '#FBF9F4', // header / tab bar / composer surfaces
+  card: '#FFFFFF',
+  cardAlt: '#ECE4D6', // stat tiles, progress tracks, inputs
+  border: '#E5DCCB', // soft warm border
+  text: '#26211C', // warm near-black
+  textMuted: '#8C8378',
+  textDim: '#A89F92',
+  primary: '#C15A3C', // terracotta
+  primaryDark: '#A84A30',
+  primarySoft: 'rgba(193,90,60,0.12)',
+  onPrimary: '#FFFFFF', // text/icons on primary or danger fills
+  accent: '#4A7BA6', // muted blue
+  protein: '#3B82C4', // blue
+  carbs: '#E0A32E', // amber
+  fat: '#D96BA0', // rose
+  calories: '#C15A3C', // terracotta (matches primary)
+  danger: '#D9544A',
+  warn: '#C8881A', // amber, tuned for light bg legibility
   white: '#FFFFFF',
 };
 
@@ -49,10 +50,10 @@ export const font = {
 
 export const shadow = {
   card: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowColor: '#3A2E20',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 2,
   },
 };

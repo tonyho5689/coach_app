@@ -170,7 +170,7 @@ export default function Advisor() {
             onPress={() => send(input)}
             disabled={!input.trim() || thinking}
           >
-            <Ionicons name="arrow-up" size={20} color="#04231A" />
+            <Ionicons name="arrow-up" size={20} color={colors.onPrimary} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -183,7 +183,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   return (
     <View style={[styles.bubbleRow, isUser && { justifyContent: 'flex-end' }]}>
       <View style={[styles.bubble, isUser ? styles.userBubble : styles.botBubble]}>
-        <Text style={[styles.bubbleText, isUser && { color: '#04231A' }]}>
+        <Text style={[styles.bubbleText, isUser && { color: colors.onPrimary }]}>
           {message.text}
         </Text>
         {!isUser && message.grounding?.length ? (

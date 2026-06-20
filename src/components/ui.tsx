@@ -76,7 +76,7 @@ export function Button({
         : variant === 'secondary'
           ? colors.cardAlt
           : 'transparent';
-  const fg = variant === 'primary' || variant === 'danger' ? '#04231A' : colors.text;
+  const fg = variant === 'primary' || variant === 'danger' ? colors.onPrimary : colors.text;
   return (
     <Pressable
       onPress={onPress}
