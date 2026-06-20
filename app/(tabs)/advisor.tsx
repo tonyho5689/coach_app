@@ -142,16 +142,25 @@ export default function Advisor() {
               <Text style={styles.thinkingText}>Coach is checking your data…</Text>
             </View>
           ) : null}
+        </ScrollView>
 
-          {chat.length <= 1 ? (
-            <View style={styles.suggestions}>
-              {SUGGESTIONS.map((s) => (
-                <Pressable key={s} style={styles.suggestion} onPress={() => send(s)}>
-                  <Text style={styles.suggestionText}>{s}</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : null}
+        {/* Persistent quick prompts — always available, even mid-conversation */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.suggestions}
+          keyboardShouldPersistTaps="handled"
+        >
+          {SUGGESTIONS.map((s) => (
+            <Pressable
+              key={s}
+              style={styles.suggestion}
+              onPress={() => send(s)}
+              disabled={thinking}
+            >
+              <Text style={styles.suggestionText}>{s}</Text>
+            </Pressable>
+          ))}
         </ScrollView>
 
         {/* Composer */}
@@ -270,15 +279,19 @@ const styles = StyleSheet.create({
   bubbleGroundingText: { color: colors.textDim, fontSize: font.tiny, flex: 1 },
   thinkingBubble: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   thinkingText: { color: colors.textMuted, fontSize: font.small },
-  suggestions: { gap: spacing.sm, marginTop: spacing.md },
+  suggestions: {
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
+  },
   suggestion: {
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.full,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    alignSelf: 'flex-start',
+    paddingVertical: spacing.sm,
   },
   suggestionText: { color: colors.text, fontSize: font.small, fontWeight: '600' },
   composer: {
