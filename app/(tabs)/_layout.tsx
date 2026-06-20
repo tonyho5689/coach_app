@@ -6,6 +6,9 @@ import { colors } from '../../src/theme';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  // Mobile web (iOS Safari) can report a 0 bottom inset, so enforce a minimum
+  // so the labels always clear the home indicator / browser chrome.
+  const bottomPad = Math.max(insets.bottom, 14);
   return (
     <Tabs
       screenOptions={{
@@ -16,10 +19,9 @@ export default function TabsLayout() {
           backgroundColor: colors.bgElevated,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          // Grow the bar by the bottom safe-area inset so labels are never
-          // clipped by the home indicator / browser chrome.
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom + 6,
+          // Grow the bar by the bottom padding so labels are never clipped.
+          height: 58 + bottomPad,
+          paddingBottom: bottomPad,
           paddingTop: 8,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
